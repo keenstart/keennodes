@@ -8,6 +8,10 @@ import (
 
 	_ "github.com/keenstart/keennodes/gopfile"
 )
+// Create a struct to store load blob( are hash name files)
+// to memory instead of keep open  and close blob file
+// Make all go routine be able to access the struct 
+// lock 
 
 const (
 	PROCESSROOT = "/Users/garethharris/"
@@ -35,7 +39,8 @@ func NewProSerives() (*ProcesService, error) {
 func (p *ProcesService) ProFileSerives() {
 
 	for key, res := range p.dspro.Files {
-
+		// go func TODO pass Path 'res'.
+		// Move khash.Sha512fn(khash.Filebytes(res.Path)) to go func too
 		x := khash.Sha512fn(khash.Filebytes(res.Path))
 
 		fmt.Printf("Key: %d = %s with %d bytes. CRC %x \n\n",
