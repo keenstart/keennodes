@@ -7,7 +7,8 @@ import "hash/crc32"
 import "hash/crc64"
 import "hash/fnv"
 
-type Blahmap  map[[]byte][uint][unit]*Blah //sha512/unit collison/unit location
+//For Global checks -- use a FIFO to avoid loading too much blah in memory
+type HashBlahmap  map[[]byte][uint][unit]*Blah //sha512/unit collison/unit location
 
 /* wk -- not using
 type Blah struct {
