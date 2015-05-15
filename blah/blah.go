@@ -7,14 +7,14 @@ import "hash/crc32"
 import "hash/crc64"
 import "hash/fnv"
 
-// type Blahmap  map[[]byte][uint]*Blah //unit collison
-
+// type Blahmap  map[[]byte][uint][unit]*Blah //sha512/unit collison/unit location
+/* wk -- not using
 type Blah struct {
 	BlahSha512 []byte
 	//wk - blah       map[int]*Dirinfo
-}
+}*/
 
 type Blah struct {
-	Collision uint64
-	Location  uint64
+	Startposition int16
+	BlockChecksum  uint64
 }
