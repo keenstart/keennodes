@@ -1,23 +1,29 @@
 package dirnfiles
 
 import (
-	_ "bufio"
-	_ "encoding/gob"
 	"fmt"
-	_ "io/ioutil"
-	_ "log"
 	"os"
 	"path/filepath"
-	//"io"
-	_ "bytes"
+	"strings"
+
+	"github.com/keenstart/keennodes/gopfile"
+	"github.com/keenstart/keennodes/khash"
+)
+
+const (
+	PROCESSROOT = "/Users/garethharris/"
+	PROCESSEXT  = ".jpg,.JPG,.PNG,.png" //,.PNG,.png
+
+	BLOBFILE = "/tmp/blob.bl"
 )
 
 type Dirinfo struct {
-	Path    string
-	Fsize   int64
-	Name    string
-	Modtime string
-	Mode    string
+	Path         string
+	Fsize        int64
+	Name         string
+	Modtime      string
+	Mode         string
+	FileChecksum uint64
 }
 
 type Dirs struct {
@@ -30,31 +36,39 @@ func NewDirs() *Dirs {
 
 func NewDirinfo(path string, fsize int64, name string, modtime string, mode string) *Dirinfo {
 
+	chksm := khash.Hashcrc64(khash.Filebytes(path))
+
 	return &Dirinfo{Path: path,
-		Fsize:   fsize,
-		Name:    name,
-		Modtime: modtime,
-		Mode:    mode,
+		Fsize:        fsize,
+		Name:         name,
+		Modtime:      modtime,
+		Mode:         mode,
+		FileChecksum: chksm,
 	}
 
 }
 
-func (d *Dirs) GetDirs(path string) error {
+func (d *Dirs) GetDirsfile() error {
 
 	count := 0
 
-	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+	err := filepath.Walk(PROCESSROOT, func(path string, f os.FileInfo, err error) error {
+		if f.IsDir() != true && f.Mode().IsRegular() {
 
-		if f.IsDir() != true {
-			//dd := &Dirinfo{path: path, fsize: f.Size(), name: f.Name(), modtime: f.ModTime().String()}
-			dd := NewDirinfo(path, f.Size(), f.Name(), f.ModTime().String(), f.Mode().String())
+			if strings.Contains(PROCESSEXT, filepath.Ext(path)) == true &&
+				len(filepath.Ext(path)) > 1 {
 
-			d.Files[count] = dd
+				fmt.Println("EXT = ", filepath.Ext(path)) //Debug
+				//dd := &Dirinfo{path: path, fsize: f.Size(), name: f.Name(), modtime: f.ModTime().String()}
+				dd := NewDirinfo(path, f.Size(), f.Name(), f.ModTime().String(), f.Mode().String())
 
-			count++
+				d.Files[count] = dd
 
-			if err != nil {
-				return err
+				count++
+
+				if err != nil {
+					return err
+				}
 			}
 		}
 		return nil
@@ -64,6 +78,8 @@ func (d *Dirs) GetDirs(path string) error {
 		return err
 	}
 
+	fmt.Println("Total files = ", count) //Debug
+
 	return nil
 
 }
@@ -71,8 +87,31 @@ func (d *Dirs) GetDirs(path string) error {
 func (d *Dirs) DisplayPath() {
 	fmt.Println("Display")
 	for _, value := range d.Files {
-		fmt.Printf("%s with %d bytes. Name = %s, modify time = %s, file mode = %s\n",
-			value.Path, value.Fsize, value.Name, value.Modtime, value.Mode)
+		fmt.Printf("%s with %d bytes. Name = %s, modify time = %s, file mode = %s FileChecksum %x\n",
+			value.Path, value.Fsize, value.Name, value.Modtime, value.Mode, value.FileChecksum)
+
 	}
+
+}
+
+func (d *Dirs) GetFiles() error {
+	err := gopfile.Load(BLOBFILE, d)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (d *Dirs) SetFiles() error {
+	err := gopfile.Save(BLOBFILE, d)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
