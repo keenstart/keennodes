@@ -8,8 +8,8 @@ import (
 
 	_ "github.com/keenstart/keennodes/gopfile"
 )
-// Create a struct to store load blob( are hash name files)
-// to memory instead of keep open  and close blob file
+// Create a struct to store load blah( are hash name files)
+// to memory instead of keep open  and close blab file.
 // Make all go routine be able to access the struct 
 // lock 
 
@@ -49,3 +49,18 @@ func (p *ProcesService) ProFileSerives() {
 	}
 
 }
+/*
+
+func ?{
+
+type Blah struct {
+	BlahSha512 []byte
+	blah       map[int]*Dirinfo
+}
+
+ok := blah[blockhash]
+if 
+}
+
+
+*/
