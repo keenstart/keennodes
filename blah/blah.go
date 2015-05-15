@@ -6,10 +6,12 @@ import "crypto/sha512"
 import "hash/crc32"
 import "hash/crc64"
 import "hash/fnv"
-// type Blahmap  map Blahmap[Blah]
+
+// type Blahmap  map[[]byte][uint]*Blah //unit collison
+
 type Blah struct {
 	BlahSha512 []byte
-	blah       map[int]*Dirinfo
+	//wk - blah       map[int]*Dirinfo
 }
 
 type Blah struct {
