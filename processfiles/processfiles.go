@@ -51,15 +51,23 @@ func (p *ProcesService) ProFileSerives() {
 }
 /*
 
-func ?{
+go func ?{
 
-type Blah struct {
+	type Blah struct {
 	BlahSha512 []byte
 	blah       map[int]*Dirinfo
-}
+	}
 
-ok := blah[blockhash]
-if 
+	if ok := blah[blockhash]; ok{
+ 		used hash
+
+	}else{
+		create or open blah file to used
+
+
+	}
+
+
 }
 
 
