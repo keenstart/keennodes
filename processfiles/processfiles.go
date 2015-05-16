@@ -8,10 +8,11 @@ import (
 
 	_ "github.com/keenstart/keennodes/gopfile"
 )
+
 // Create a struct to store load blah( are hash name files)
 // to memory instead of keep open  and close blab file.
-// Make all go routine be able to access the struct 
-// lock 
+// Make all go routine be able to access the struct
+// lock
 
 const (
 	PROCESSROOT = "/Users/garethharris/"
@@ -37,7 +38,7 @@ func NewProSerives() (*ProcesService, error) {
 }
 
 func (p *ProcesService) ProFileSerives() {
-// processch := make(int,100)
+	// processch := make(int,100)
 	for key, res := range p.dspro.Files {
 		// go func TODO pass Path 'res'.
 		// Move khash.Sha512fn(khash.Filebytes(res.Path)) to go func too
@@ -49,19 +50,20 @@ func (p *ProcesService) ProFileSerives() {
 	}
 
 }
+
 /*
 
 go func ?{
 	- location = res.Location used the 'map key'
 	x := khash.Sha512fn(khash.Filebytes(res.Path))
-	for { //loop 1024 bytes at a time move 1 byte at a time 
-		
+	for { //loop 1024 bytes at a time move 1 byte at a time
+
 		break // when  slice less than 1024
-		
+
 		- get blockFNV
 		- start position
 		- location - mapkey
-		
+
 		if ok := blah[blockhash]; !ok{
 	 		if create {
 				//create hashstruct to save to file
