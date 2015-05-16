@@ -37,7 +37,7 @@ func NewProSerives() (*ProcesService, error) {
 }
 
 func (p *ProcesService) ProFileSerives() {
-
+// processch := make(int,100)
 	for key, res := range p.dspro.Files {
 		// go func TODO pass Path 'res'.
 		// Move khash.Sha512fn(khash.Filebytes(res.Path)) to go func too
@@ -45,33 +45,33 @@ func (p *ProcesService) ProFileSerives() {
 
 		fmt.Printf("Key: %d = %s with %d bytes. CRC %x \n\n",
 			key, res.Path, res.Fsize, x)
-
+		//<-processch
 	}
 
 }
 /*
 
 go func ?{
-
-	
+	- location = res.Location used the 'map key'
+	x := khash.Sha512fn(khash.Filebytes(res.Path))
 	for { //loop 1024 bytes at a time move 1 byte at a time 
-		- get blockhash
+		
+		break // when  slice less than 1024
+		
+		- get blockFNV
 		- start position
-		if ok := blah[blockhash]; ok{
-	 		used hash
-		}else{
-			//create or open blah file to used
-			if create {
-				create hashstruct to save to file
+		- location - mapkey
+		
+		if ok := blah[blockhash]; !ok{
+	 		if create {
+				//create hashstruct to save to file
 			}else{
-				open file to save to hashstruct
+				//open file to save to hashstruct
 			}
 		}
-		
-		break / when  slice less than 1024
+		//add to blah
 	}
-
-
+	processch<-1
 }
 
 
