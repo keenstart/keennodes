@@ -8,11 +8,12 @@ import "hash/crc64"
 import "hash/fnv"
 
 //For Global checks -- use a FIFO to avoid loading too much blah in memory
-type HashBlahmap  map[[]byte][uint][unit]*Blah //sha512/unit collison/unit location
+type HashBlahmap  map[[]byte][uint][unit]*Blah //Blahblock sha512 - this is the 1024bytes{}
+	//unit collison/unit location
 
 /* wk -- not using
 type Blah struct {
-	BlahSha512 []byte
+	BlahBlockSha512 []byte
 	//wk - blah       map[int]*Dirinfo
 }*/
 
