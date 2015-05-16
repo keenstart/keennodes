@@ -53,24 +53,21 @@ func (p *ProcesService) ProFileSerives() {
 
 go func ?{
 
-	if ok := blah[blockhash]; ok{
- 		used hash
-
-	}else{
-	
-		//create or open blah file to used
-		if create {
-			create hashstruct to save to file
-		}else{
-			open file to save to hashstruct
-			
-		}
-
-	}
 	
 	for { //loop 1024 bytes at a time move 1 byte at a time 
 		- get blockhash
 		- start position
+		if ok := blah[blockhash]; ok{
+	 		used hash
+		}else{
+			//create or open blah file to used
+			if create {
+				create hashstruct to save to file
+			}else{
+				open file to save to hashstruct
+			}
+		}
+		
 		break / when  slice less than 1024
 	}
 
