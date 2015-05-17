@@ -21,11 +21,18 @@ const (
 type Dirinfo struct {
 	Key          int
 	Path         string
-	Fsize        int64
-	Name         string
-	Modtime      string
-	Mode         string
+	Fsize        int64 
+	Name         string //remove
+	Modtime      string //remove
+	Mode         string // remove
 	FileChecksum uint64
+	//active       bool  //add - when ative it
+			     // means the process is
+			     // done on this file 
+			     // and it is not corrupted or mssing
+	
+	
+	
 }
 
 type Dirs struct {
