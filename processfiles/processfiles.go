@@ -4,7 +4,9 @@ import (
 	"fmt"
 	_ "time"
 	_ "list"
-
+ 	_ "sync"
+ 	
+ 	
 	"github.com/keenstart/keennodes/dirnfiles"
 	"github.com/keenstart/keennodes/khash"
 
@@ -25,7 +27,8 @@ const (
 type ProcesService struct {
 	dspro *dirnfiles.Dirs
 	
-
+	//sync.Mutex
+	
 	//BlahMemoryList *list.List; //Type to add is (GlobalBlahBlock )
 	
 }
@@ -53,7 +56,7 @@ func (p *ProcesService) ProFileSerives() {
 
 		maxprocessch <- 1 // To limit the amount of goroutine
 		go func(files *dirnfiles.Dirinfo) {
-			process(files)
+			process(files/*,p.sync.mutex*/)
 			<-maxprocessch // To limit the amount of goroutine
 		}(files)
 
@@ -61,7 +64,7 @@ func (p *ProcesService) ProFileSerives() {
 
 }
 
-func process(files *dirnfiles.Dirinfo) {
+func process(files *dirnfiles.Dirinf /*, lock *sync.mutex*/) {
 
 	x := khash.Sha512fn(khash.Filebytes(files.Path))
 	
@@ -81,9 +84,9 @@ func process(files *dirnfiles.Dirinfo) {
 		
 		if ok := HashBlahmap[GlobalBlahBlock]; !ok{
 	 		if HashBlahmap fileexist (the filename = GlobalBlahBlock.BlockHashSha512)  {
-	 			//sync.Rlock
+	 			// lock sync.Rlock
 				//open file to read and save to HashBlahmap 
-				//sync.RUnlock	
+				//lock sync.RUnlock	
 				
 				 //check for collision
 				-if collision{ //make this a func
@@ -104,7 +107,7 @@ func process(files *dirnfiles.Dirinfo) {
 				collision++ // increment collison
 			}
 		}
-		//sync.lock
+		//lock sync.lock
 		
 		//Add to HashBlahmap with func AddHashBlahmap below
 		//AddHashBlahmap(globalBlahBlk GlobalBlahBlock, collision Collisions,
@@ -115,7 +118,7 @@ func process(files *dirnfiles.Dirinfo) {
 		//2. remove element(GlobalBlahBlock) from the front of list BlahMemoryList if list is greater than MAXMEMORYBLAH
 			//and also delete from map
 			
-		//sync.unlock	
+		// lock sync.unlock	
 		
 
 
