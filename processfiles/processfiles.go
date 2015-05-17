@@ -2,6 +2,7 @@ package processfiles
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/keenstart/keennodes/dirnfiles"
 	"github.com/keenstart/keennodes/khash"
@@ -15,7 +16,8 @@ import (
 // lock
 
 const (
-	PROCESSROOT = "/Users/garethharris/"
+	PROCESSROOT   = "/Users/garethharris/"
+	MAXPROCCESSES = 170 // To limit the amount of goroutine
 )
 
 type ProcesService struct {
@@ -38,25 +40,29 @@ func NewProSerives() (*ProcesService, error) {
 }
 
 func (p *ProcesService) ProFileSerives() {
-	// processch := make(int,100)
-	for key, res := range p.dspro.Files {
-		// go func TODO pass Path 'res'.
-		// Move khash.Sha512fn(khash.Filebytes(res.Path)) to go func too
-		x := khash.Sha512fn(khash.Filebytes(res.Path))
+	maxprocessch := make(chan int, MAXPROCCESSES) // To limit the amount of goroutine
 
-		fmt.Printf("Key: %d = %s with %d bytes. CRC %x \n\n",
-			key, res.Path, res.Fsize, x)
-		//<-processch
+	for _, files := range p.dspro.Files {
+
+		maxprocessch <- 1 // To limit the amount of goroutine
+		go func(files *dirnfiles.Dirinfo) {
+			process(files)
+			<-maxprocessch // To limit the amount of goroutine
+		}(files)
+
 	}
 
 }
 
-/*
+func process(files *dirnfiles.Dirinfo) {
 
-go func ?{
-	- location = res.Location used the 'map key'
-	x := khash.Sha512fn(khash.Filebytes(res.Path))
-	for { //loop 1024 bytes at a time move 1 byte at a time
+	x := khash.Sha512fn(khash.Filebytes(files.Path))
+
+	fmt.Printf("\nKey: %d = %s with %d bytes. CRC %x \n\n",
+		files.Key, files.Path, files.Fsize, x)
+
+	//time.Sleep(1000 * time.Millisecond)
+	/*for { //loop 1024 bytes at a time move 1 byte at a time
 
 		break // when  slice less than 1024
 
@@ -72,9 +78,6 @@ go func ?{
 			}
 		}
 		//add to blah
-	}
-	processch<-1
+	}*/
+
 }
-
-
-*/

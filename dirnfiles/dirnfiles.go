@@ -18,6 +18,7 @@ const (
 )
 
 type Dirinfo struct {
+	Key          int
 	Path         string
 	Fsize        int64
 	Name         string
@@ -34,11 +35,13 @@ func NewDirs() *Dirs {
 	return &Dirs{Files: make(map[int]*Dirinfo)}
 }
 
-func NewDirinfo(path string, fsize int64, name string, modtime string, mode string) *Dirinfo {
+func NewDirinfo(key int, path string, fsize int64, name string, modtime string, mode string) *Dirinfo {
 
 	chksm := khash.Hashcrc64(khash.Filebytes(path))
 
-	return &Dirinfo{Path: path,
+	return &Dirinfo{
+		Key:          key,
+		Path:         path,
 		Fsize:        fsize,
 		Name:         name,
 		Modtime:      modtime,
@@ -50,7 +53,7 @@ func NewDirinfo(path string, fsize int64, name string, modtime string, mode stri
 
 func (d *Dirs) GetDirsfile() error {
 
-	count := 0
+	var key int
 
 	err := filepath.Walk(PROCESSROOT, func(path string, f os.FileInfo, err error) error {
 		if f.IsDir() != true && f.Mode().IsRegular() {
@@ -60,11 +63,11 @@ func (d *Dirs) GetDirsfile() error {
 
 				fmt.Println("EXT = ", filepath.Ext(path)) //Debug
 				//dd := &Dirinfo{path: path, fsize: f.Size(), name: f.Name(), modtime: f.ModTime().String()}
-				dd := NewDirinfo(path, f.Size(), f.Name(), f.ModTime().String(), f.Mode().String())
+				dd := NewDirinfo(key, path, f.Size(), f.Name(), f.ModTime().String(), f.Mode().String())
 
-				d.Files[count] = dd
+				d.Files[key] = dd
 
-				count++
+				key++
 
 				if err != nil {
 					return err
@@ -78,7 +81,7 @@ func (d *Dirs) GetDirsfile() error {
 		return err
 	}
 
-	fmt.Println("Total files = ", count) //Debug
+	fmt.Println("Total files = ", key) //Debug
 
 	return nil
 
@@ -87,8 +90,8 @@ func (d *Dirs) GetDirsfile() error {
 func (d *Dirs) DisplayPath() {
 	fmt.Println("Display")
 	for _, value := range d.Files {
-		fmt.Printf("%s with %d bytes. Name = %s, modify time = %s, file mode = %s FileChecksum %x\n",
-			value.Path, value.Fsize, value.Name, value.Modtime, value.Mode, value.FileChecksum)
+		fmt.Printf("Key %d == %s with %d bytes. Name = %s, modify time = %s, file mode = %s FileChecksum %x\n",
+			value.Key, value.Path, value.Fsize, value.Name, value.Modtime, value.Mode, value.FileChecksum)
 
 	}
 
