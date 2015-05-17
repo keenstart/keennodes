@@ -3,11 +3,13 @@ package processfiles
 import (
 	"fmt"
 	_ "time"
+	_ "list"
 
 	"github.com/keenstart/keennodes/dirnfiles"
 	"github.com/keenstart/keennodes/khash"
 
 	_ "github.com/keenstart/keennodes/gopfile"
+	_ "github.com/keenstart/keennodes/blah"
 )
 
 // Create a struct to store load blah( are hash name files)
@@ -22,7 +24,12 @@ const (
 
 type ProcesService struct {
 	dspro *dirnfiles.Dirs
+	
+
+	//BlahMemoryList *list.List; //Type to add is (GlobalBlahBlock )
+	
 }
+
 
 func NewProSerives() (*ProcesService, error) {
 
@@ -57,7 +64,9 @@ func (p *ProcesService) ProFileSerives() {
 func process(files *dirnfiles.Dirinfo) {
 
 	x := khash.Sha512fn(khash.Filebytes(files.Path))
-
+	
+	//add to back of list BlahMemoryList if does not exist
+	
 	fmt.Printf("\nKey: %d = %s with %d bytes. CRC %x \n\n",
 		files.Key, files.Path, files.Fsize, x)
 
@@ -70,14 +79,18 @@ func process(files *dirnfiles.Dirinfo) {
 		- start position
 		- location - mapkey
 
-		if ok := blah[blockhash]; !ok{
-	 		if create {
-				//create hashstruct to save to file
+		if ok := HashBlahmap[GlobalBlahBlock]; !ok{
+	 		if HashBlahmap fileexist (the filename = GlobalBlahBlock.BlockHashSha512)  {
+				//open file to save to HashBlahmap 
 			}else{
-				//open file to save to hashstruct
+				
+				//create HashBlahmap to save to file (the filename = GlobalBlahBlock.BlockHashSha512)
 			}
 		}
 		//add to blah
 	}*/
+	
+		//remove from front of list BlahMemoryList if list is greater than MAXMEMORYBLAH
+		// delete from map
 
 }
