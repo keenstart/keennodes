@@ -74,10 +74,10 @@ func process(files *dirnfiles.Dirinfo) {
 	/*for { //loop 1024 bytes at a time move 1 byte at a time
 
 		break // when  slice less than 1024
-
-		- get blockFNV
+		- get BlockHashSha512 
+		- get BlockFNV64      
 		- start position
-		- location - mapkey
+		- location - files.Key
 		
 		if ok := HashBlahmap[GlobalBlahBlock]; !ok{
 	 		if HashBlahmap fileexist (the filename = GlobalBlahBlock.BlockHashSha512)  {
@@ -88,17 +88,30 @@ func process(files *dirnfiles.Dirinfo) {
 			}
 			
 			//add to back of list BlahMemoryList 
+			collision := 1
+			
+		}else{
+			- check for collision
+			-if collision{
+				collision++ // increment collison
+			}
 		}
+		//sync.lock
+		
 		//Add to HashBlahmap with func AddHashBlahmap below
 		//AddHashBlahmap(globalBlahBlk GlobalBlahBlock, collision Collisions,
-	location Locations, blockStatus BlockStatus) 
-	}*/
-	//sync.lock
-	// 1. Save to file the GlobalBlahBlock at the front of the BlahMemoryList list
-	//2. remove element(GlobalBlahBlock) from the front of list BlahMemoryList if list is greater than MAXMEMORYBLAH
-		//and also delete from map
-	//sync.unlock	
+					location Locations, blockStatus BlockStatus) 
+
 		
+		// 1. Save to file. 
+		//2. remove element(GlobalBlahBlock) from the front of list BlahMemoryList if list is greater than MAXMEMORYBLAH
+			//and also delete from map
+			
+		//sync.unlock	
+		
+
+
+	}*/	
 
 
 }
