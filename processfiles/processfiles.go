@@ -2,7 +2,7 @@ package processfiles
 
 import (
 	"fmt"
-	"time"
+	_ "time"
 
 	"github.com/keenstart/keennodes/dirnfiles"
 	"github.com/keenstart/keennodes/khash"
