@@ -65,12 +65,12 @@ func process(files *dirnfiles.Dirinfo) {
 
 	x := khash.Sha512fn(khash.Filebytes(files.Path))
 	
-	//add to back of list BlahMemoryList if does not exist
-	
 	fmt.Printf("\nKey: %d = %s with %d bytes. CRC %x \n\n",
 		files.Key, files.Path, files.Fsize, x)
 
 	//time.Sleep(1000 * time.Millisecond)
+	
+	
 	/*for { //loop 1024 bytes at a time move 1 byte at a time
 
 		break // when  slice less than 1024
@@ -78,7 +78,7 @@ func process(files *dirnfiles.Dirinfo) {
 		- get blockFNV
 		- start position
 		- location - mapkey
-
+		
 		if ok := HashBlahmap[GlobalBlahBlock]; !ok{
 	 		if HashBlahmap fileexist (the filename = GlobalBlahBlock.BlockHashSha512)  {
 				//open file to save to HashBlahmap 
@@ -86,11 +86,13 @@ func process(files *dirnfiles.Dirinfo) {
 				
 				//create HashBlahmap to save to file (the filename = GlobalBlahBlock.BlockHashSha512)
 			}
+			
+			//add to back of list BlahMemoryList 
 		}
-		//add to blah
+
 	}*/
 	
-		//remove from front of list BlahMemoryList if list is greater than MAXMEMORYBLAH
-		// delete from map
+	//remove from front of list BlahMemoryList if list is greater than MAXMEMORYBLAH
+		//and also delete from map
 
 }
