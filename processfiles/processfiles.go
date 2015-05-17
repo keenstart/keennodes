@@ -89,10 +89,16 @@ func process(files *dirnfiles.Dirinfo) {
 			
 			//add to back of list BlahMemoryList 
 		}
-
+		//Add to HashBlahmap with func AddHashBlahmap below
+		//AddHashBlahmap(globalBlahBlk GlobalBlahBlock, collision Collisions,
+	location Locations, blockStatus BlockStatus) 
 	}*/
-	
-	//remove from front of list BlahMemoryList if list is greater than MAXMEMORYBLAH
+	//sync.lock
+	// 1. Save to file the GlobalBlahBlock at the front of the BlahMemoryList list
+	//2. remove element(GlobalBlahBlock) from the front of list BlahMemoryList if list is greater than MAXMEMORYBLAH
 		//and also delete from map
+	//sync.unlock	
+		
+
 
 }
