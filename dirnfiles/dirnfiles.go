@@ -14,7 +14,8 @@ const (
 	PROCESSROOT = "/Users/garethharris/"
 	PROCESSEXT  = ".jpg,.JPG,.PNG,.png" //,.PNG,.png
 
-	BLOBFILE = "/tmp/blob.bl"
+	BLOBFILE  = "/tmp/blob.bl"
+	BLOCKSIZE = 1024
 )
 
 type Dirinfo struct {
@@ -56,7 +57,7 @@ func (d *Dirs) GetDirsfile() error {
 	var key int
 
 	err := filepath.Walk(PROCESSROOT, func(path string, f os.FileInfo, err error) error {
-		if f.IsDir() != true && f.Mode().IsRegular() {
+		if !f.IsDir() && f.Mode().IsRegular() && f.Size() > BLOCKSIZE {
 
 			if strings.Contains(PROCESSEXT, filepath.Ext(path)) == true &&
 				len(filepath.Ext(path)) > 1 {
