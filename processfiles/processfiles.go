@@ -81,18 +81,26 @@ func process(files *dirnfiles.Dirinfo) {
 		
 		if ok := HashBlahmap[GlobalBlahBlock]; !ok{
 	 		if HashBlahmap fileexist (the filename = GlobalBlahBlock.BlockHashSha512)  {
-				//open file to save to HashBlahmap 
+	 			//sync.Rlock
+				//open file to read and save to HashBlahmap 
+				//sync.RUnlock	
+				
+				 //check for collision
+				-if collision{ //make this a func
+					collision++ // increment collison
+				}				 
 			}else{
 				
 				//create HashBlahmap to save to file (the filename = GlobalBlahBlock.BlockHashSha512)
+				collision := 1
 			}
 			
 			//add to back of list BlahMemoryList 
-			collision := 1
+			
 			
 		}else{
 			- check for collision
-			-if collision{
+			-if collision{//make this a func
 				collision++ // increment collison
 			}
 		}
