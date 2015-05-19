@@ -38,7 +38,7 @@ GlobalBlahBlocks
 */
 
 type GlobalBlahBlock struct {
-	BlockHashSha512 [64]uint8
+	BlockHashSha512 []byte
 	BlockFNV64      uint64
 }
 
@@ -53,25 +53,15 @@ type BlockStatus struct {
 type HashBlahmap map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus
 
 func NewHashBlahmap() *HashBlahmap {
+	var hashBlahmap HashBlahmap
+	hashBlahmap = make(map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus)
 
-	hashBlahmap := make(map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus)
-
-	return hashBlahmap
-
-}
-
-func NewGlobalBlahBlock(blkHashSha512 [64]uint8, blkFNV64 uint64) GlobalBlahBlock {
-
-	return GlobalBlahBlock{BlockHashSha512: blkHashSha512, BlockFNV64: blkFNV64}
+	return &hashBlahmap
 
 }
 
-func NewBlockStatus(blockCheckSum uint32, startposition uint16) BlockStatus {
-	return BlockStatus{BlockCheckSum: blockCheckSum, Startposition: startposition}
-}
-
-func (h *HashBlahmap) AddHashBlahmap(globalBlahBlk GlobalBlahBlock, collision Collisions,
-	location Locations, blockStatus BlockStatus) {
+func (h HashBlahmap) PutHashBlahmap(globalBlahBlk GlobalBlahBlock, collision Collisions,
+	location Locations, blockStatus BlockStatus) { //blkHashSha512 [64]uint8, blkFNV64 uint64,
 
 	h[globalBlahBlk][collision][location] = blockStatus
 
@@ -81,14 +71,10 @@ func (h *HashBlahmap) AddHashBlahmap(globalBlahBlk GlobalBlahBlock, collision Co
 // to use the same file for the unique block more than once. However for redundancy
 // protection the unique block can  be represented by a another location incase a location
 // get lose or corrupted
-func (h *HashBlahmap) GetLocationBlkStatus(globalBlahBlk GlobalBlahBlock, collision Collisions,
-	location Locations) HashBlahmap {
-	 
-	// hh := h
+func (h HashBlahmap) GetLocationBlkStatus(globalBlahBlk GlobalBlahBlock, collision Collisions,
+	location Locations) BlockStatus {
 
-	 hh := h map[globalBlahBlk]map[collision]map[location]
-
-	 return hh
+	return h[globalBlahBlk][collision][location]
 
 }
 
@@ -112,6 +98,16 @@ func (h *HashBlahmap) SetFiles(filepath string) error {
 
 	return nil
 
+}
+
+func NewGlobalBlahBlock(blkHashSha512 []byte, blkFNV64 uint64) GlobalBlahBlock {
+
+	return GlobalBlahBlock{BlockHashSha512: blkHashSha512, BlockFNV64: blkFNV64}
+
+}
+
+func NewBlockStatus(blockCheckSum uint32, startposition uint16) BlockStatus {
+	return BlockStatus{BlockCheckSum: blockCheckSum, Startposition: startposition}
 }
 
 /*--
