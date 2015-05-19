@@ -1,13 +1,6 @@
 package blah
 
 import (
-	"bytes"
-	"crypto/sha512"
-	"fmt"
-	"hash/crc32"
-	"hash/crc64"
-	"hash/fnv"
-
 	"github.com/keenstart/keennodes/gopfile"
 )
 
@@ -57,13 +50,13 @@ type BlockStatus struct {
 	Startposition uint16
 }
 
-type HashBlahmap map[GlobalBlahBlocks][Collisions][Locations]BlockStatus
+type HashBlahmap map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus
 
 func NewHashBlahmap() *HashBlahmap {
 
-	hashBlahmap = make(map[GlobalBlahBlock][Collisions][Locations]BlockStatus)
+	hashBlahmap := make(map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus)
 
-	return &hashBlahmap
+	return hashBlahmap
 
 }
 
@@ -73,30 +66,34 @@ func NewGlobalBlahBlock(blkHashSha512 [64]uint8, blkFNV64 uint64) GlobalBlahBloc
 
 }
 
-func NewBlockStatus(blockCheckSum, startposition) BlockStatus {
-	return BlockStatus{blockCheckSum: blockCheckSum, startposition: startposition}
+func NewBlockStatus(blockCheckSum uint32, startposition uint16) BlockStatus {
+	return BlockStatus{BlockCheckSum: blockCheckSum, Startposition: startposition}
 }
 
 func (h *HashBlahmap) AddHashBlahmap(globalBlahBlk GlobalBlahBlock, collision Collisions,
 	location Locations, blockStatus BlockStatus) {
 
-	*h[globalBlahBlk][collision][location] = blockStatus
+	h[globalBlahBlk][collision][location] = blockStatus
 
 }
 
-// One unique Block can be assocaite with one file. It does not server any redundant purpose
+// One unique Block can be assocaite with one file. It does not serve any redundant purpose
 // to use the same file for the unique block more than once. However for redundancy
 // protection the unique block can  be represented by a another location incase a location
 // get lose or corrupted
 func (h *HashBlahmap) GetLocationBlkStatus(globalBlahBlk GlobalBlahBlock, collision Collisions,
-	location Locations) {
+	location Locations) HashBlahmap {
+	 
+	// hh := h
 
-	return *h[globalBlahBlk][collision][location]
+	 hh := h map[globalBlahBlk]map[collision]map[location]
+
+	 return hh
 
 }
 
-func (h *HashBlahmap) GetFiles() error {
-	err := gopfile.Load(BLOBFILE, h)
+func (h *HashBlahmap) GetFiles(filepath string) error {
+	err := gopfile.Load(filepath, h)
 
 	if err != nil {
 		return err
@@ -106,8 +103,8 @@ func (h *HashBlahmap) GetFiles() error {
 
 }
 
-func (h *HashBlahmap) SetFiles() error {
-	err := gopfile.Save(BLOBFILE, h)
+func (h *HashBlahmap) SetFiles(filepath string) error {
+	err := gopfile.Save(filepath, h)
 
 	if err != nil {
 		return err
