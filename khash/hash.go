@@ -3,7 +3,8 @@ package khash
 import (
 	_ "bytes"
 	"crypto/sha512"
-	"fmt"
+	"encoding/binary"
+	_ "fmt"
 	"hash/crc32"
 	"hash/crc64"
 	"hash/fnv"
@@ -11,28 +12,61 @@ import (
 	"log"
 )
 
+const (
+	SIZEOF_INT32 = 4
+	SIZEOF_INT64 = 8
+) // bytes
+
+func Convert32(covert []byte) [16]int32 {
+
+	//fmt.Printf("\nConvert32: bytes covert %d count %d\n", covert, len(covert))
+
+	var data [16]int32 //make([]int32, len(covert)/SIZEOF_INT32)
+
+	for i := range data {
+		// assuming little endian
+		data[i] = int32(binary.LittleEndian.Uint32(covert[i*SIZEOF_INT32 : (i+1)*SIZEOF_INT32]))
+	}
+	//fmt.Printf("data bytes covert %x\n", data)
+	return data
+}
+
+func Convert64(covert []byte) [8]int64 {
+
+	//fmt.Printf("\nConvert32: bytes covert %d count %d\n", covert, len(covert))
+
+	var data [8]int64 //make([]int32, len(covert)/SIZEOF_INT32)
+
+	for i := range data {
+		// assuming little endian
+		data[i] = int64(binary.LittleEndian.Uint64(covert[i*SIZEOF_INT64 : (i+1)*SIZEOF_INT64]))
+	}
+	//fmt.Printf("data bytes covert %x\n", data)
+	return data
+}
+
 func HashFNV64(s []byte) uint64 {
 	h := fnv.New64a()
 	h.Write([]byte(s))
-	count, err := h.Write(s)
+	_, err := h.Write(s)
 	if err != nil {
 		log.Fatal(err)
 		//return nil
 	}
 
-	fmt.Printf("read FNV64 %d bytes.", count) //Debug
+	//fmt.Printf("read FNV64 %d bytes.", count) //Debug
 
 	return h.Sum64()
 }
 
 func Hashcrc64(s []byte) uint64 {
 	h := crc64.New(crc64.MakeTable(crc64.ECMA))
-	count, err := h.Write(s)
+	_, err := h.Write(s)
 	if err != nil {
 		log.Fatal(err)
 		//return nil
 	}
-	fmt.Printf("read CRC64 %d bytes. Checksum Func ->  ", count) //Debug
+	//fmt.Printf("read CRC64 %d bytes. Checksum Func ->  ", count) //Debug
 
 	return h.Sum64()
 
@@ -40,13 +74,13 @@ func Hashcrc64(s []byte) uint64 {
 
 func Hashcrc32(s []byte) uint32 {
 	h := crc32.NewIEEE()
-	count, err := h.Write(s)
+	_, err := h.Write(s)
 	if err != nil {
 		log.Fatal(err)
 		//return nil
 	}
 
-	fmt.Printf("read CRC32 %d bytes.  ->  ", count) //Debug
+	///fmt.Printf("read CRC32 %d bytes.  ->  ", count) //Debug
 
 	return h.Sum32()
 }
@@ -54,14 +88,14 @@ func Hashcrc32(s []byte) uint32 {
 func Sha512fn(s []byte) []byte {
 	h512 := sha512.New()
 
-	count, err := h512.Write(s)
+	_, err := h512.Write(s)
 	if err != nil {
 		log.Fatal(err)
 		//return nil
 	}
 
-	fmt.Printf("read SHA512 %d bytes.  2nd ->  ", count) //Debug
-	fmt.Printf("%x/n ", h512.Sum(nil))                   //Debug
+	//fmt.Printf("read SHA512 %d bytes.  2nd ->  ", count) //Debug
+	//fmt.Printf("%x/n ", h512.Sum(nil))                   //Debug
 
 	return h512.Sum(nil)
 }

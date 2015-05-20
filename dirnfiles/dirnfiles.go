@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	PROCESSROOT = "/Users/garethharris/"
+	PROCESSROOT = "./"                  //"/Users/garethharris/"
 	PROCESSEXT  = ".jpg,.JPG,.PNG,.png" //,.PNG,.png
 
 	BLOBFILE  = "/tmp/blob.bl"

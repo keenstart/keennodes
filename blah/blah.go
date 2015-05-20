@@ -38,7 +38,7 @@ GlobalBlahBlocks
 */
 
 type GlobalBlahBlock struct {
-	BlockHashSha512 []byte
+	BlockHashSha512 [8]int64 //[]byte
 	BlockFNV64      uint64
 }
 
@@ -100,7 +100,7 @@ func (h *HashBlahmap) SetFiles(filepath string) error {
 
 }
 
-func NewGlobalBlahBlock(blkHashSha512 []byte, blkFNV64 uint64) GlobalBlahBlock {
+func NewGlobalBlahBlock(blkHashSha512 [8]int64, blkFNV64 uint64) GlobalBlahBlock {
 
 	return GlobalBlahBlock{BlockHashSha512: blkHashSha512, BlockFNV64: blkFNV64}
 
