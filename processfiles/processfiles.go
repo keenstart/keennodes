@@ -12,7 +12,7 @@ import (
 	"github.com/keenstart/keennodes/dirnfiles"
 	"github.com/keenstart/keennodes/khash"
 
-	"github.com/keenstart/keennodes/blah"
+	_ "github.com/keenstart/keennodes/blah"
 	"github.com/keenstart/keennodes/gopfile"
 )
 
@@ -21,20 +21,66 @@ import (
 // Make all go routine be able to access the struct
 // lock
 
+/*
+
+GlobalBlahBlocks
+	- BlockHashSha512
+		- BlockFNV64
+			- Collisions 1
+				- Location
+					- BlockCheckSum
+					- StartPosition
+				- Location
+					- BlockCheckSum
+					- StartPosition
+				- Location
+					- BlockCheckSum
+					- StartPosition
+			- Collisions 2
+				- Location
+					- BlockCheckSum
+					- StartPosition
+		- BlockFNV64
+			- Collisions 1
+				- Location
+					- BlockCheckSum
+					- StartPosition
+
+*/
+
+type GlobalBlahBlock struct {
+	//BlockHashSha512 [8]int64 //[]byte
+	BlockFNV64 uint64
+}
+
+type Collisions uint64
+type Locations uint64
+
+type BlockStatus struct {
+	BlockCheckSum uint32
+	Startposition uint16
+}
+
+func NewGlobalBlahBlock(blkFNV64 uint64) GlobalBlahBlock {
+	return GlobalBlahBlock{BlockFNV64: blkFNV64}
+
+}
+
+func NewBlockStatus(blockCheckSum uint32, startposition uint16) BlockStatus {
+	return BlockStatus{BlockCheckSum: blockCheckSum, Startposition: startposition}
+}
+
 const (
 	//PROCESSROOT   = "/Users/garethharris/"
 	MAXPROCCESSES = 170 // To limit the amount of goroutine
+	BLAHPATH      = "./blahs/"
 )
 
 type ProcesService struct {
 	dspro *dirnfiles.Dirs
-	//hBlahmap *blah.HashBlahmap
-
-	//HashBlahmap map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus
-
 	sync.WaitGroup
-	//sync.Mutex
 
+	sync.Mutex
 	//BlahMemoryList *list.List; //Type to add is (GlobalBlahBlock )
 
 }
@@ -88,6 +134,7 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 	fmt.Printf("\nKey: %d = %s with %d bytes. CRC \n\n",
 		files.Key, files.Path, files.Fsize) //debug purposes
 
+	//sfile := make([]byte, files.Fsize, files.Fsize) //debug
 	// Get file bytes
 	sfile := khash.Filebytes(files.Path)
 
@@ -101,49 +148,49 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 
 	var (
 		startposition uint16
-		blkHashSha512 [8]int64 //[]byte //[64]uint8
+		//blkHashSha512 [8]int64 //[]byte //[64]uint8
 		blkFNV64      uint64
 		blockCheckSum uint32
-		globalBlahBlk blah.GlobalBlahBlock
-		blockStatus   blah.BlockStatus
-		location      blah.Locations
-		collision     blah.Collisions
+		globalBlahBlk GlobalBlahBlock
+		blockStatus   BlockStatus
+		location      Locations
+		collision     Collisions
 	)
 	// File location represented by it's key to save on space.
 	// To avoid repeating its location int the blah which
 	// takes up more space than the key
-	location = 4 //blah.Locations(files.Key)
-	collision = 2
+	location = Locations(files.Key)
+	collision = 1
 	// test
-	blahfFileNameStr1 := ""
+	blahfFileNameStr1 := "" //debug
 
-	path := "./blahs/"
 	//loop BLOCKSIZE bytes at a time moving by 1 byte at a time
 	for {
 
-		hashBlahmap := make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
+		hashBlahmap := make(map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus)
 
 		blahhashbyte := khash.Sha512fn(sfile[lo:hi])
 
-		blahfFileNameStr := hex.EncodeToString(blahhashbyte)
+		blahfFileNameStr := BLAHPATH + hex.EncodeToString(blahhashbyte)
 
 		blahfFileNameStr1 = blahfFileNameStr //debug
 		fmt.Println(blahfFileNameStr)        //debug
 		fmt.Println("Start Map")             //debug
 
-		f, err := os.Open(path + blahfFileNameStr)
+		f, err := os.Open(blahfFileNameStr)
 
 		//If file exist load it
 		if !os.IsNotExist(err) {
-			fmt.Println("Load file = ", path+blahfFileNameStr) //debug
-			gopfile.Load(path+blahfFileNameStr, &hashBlahmap)
+			fmt.Println("Load file = ", blahfFileNameStr) //debug
+			gopfile.Load(blahfFileNameStr, &hashBlahmap)
 			fmt.Println("Load hashBlahmap = ", hashBlahmap)
 
 		}
 		f.Close()
 
-		blkHashSha512 = khash.Convert64(blahhashbyte) //	- get BlockHashSha512
-		//fmt.Printf("blkHashSha512 : %d\n", blkHashSha512) //debug
+		fmt.Printf("Filenames : %x\n", blahhashbyte) //debug
+		//blkHashSha512 = khash.ConverttoInt64(blahhashbyte) //	- get BlockHashSha512
+		//fmt.Printf("blkHashSha512 : %d\n", blkHashSha512)  //debug
 
 		blkFNV64 = khash.HashFNV64(sfile[lo:hi]) //	- get BlockFNV64
 		fmt.Printf("blkFNV64 : %d\n", blkFNV64)  //debug
@@ -152,25 +199,25 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 
 		fmt.Printf("Locations : %d\n", location) //debug
 
-		startposition = uint16(lo) //	- start position
-		//fmt.Printf("startposition : %d\n", startposition) //debug
+		startposition = uint16(lo)                        //	- start position
+		fmt.Printf("startposition : %d\n", startposition) //debug
 
 		blockCheckSum = khash.Hashcrc32(sfile[lo:hi])
-		//fmt.Printf("blockCheckSum : %d\n\n", blockCheckSum) //debug
+		fmt.Printf("blockCheckSum : %d\n\n", blockCheckSum) //debug
 
-		blockStatus = blah.NewBlockStatus(blockCheckSum, startposition)
-		globalBlahBlk = blah.NewGlobalBlahBlock(blkHashSha512, blkFNV64)
+		blockStatus = NewBlockStatus(blockCheckSum, startposition)
+		globalBlahBlk = NewGlobalBlahBlock(blkFNV64)
 
 		//_, ok := hashBlahmap[globalBlahBlk][collision][location]
 		cc, ok := hashBlahmap[globalBlahBlk]
 		if !ok {
-			cc = make(map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
+			cc = make(map[Collisions]map[Locations]BlockStatus)
 			hashBlahmap[globalBlahBlk] = cc
 		}
 
 		ll, ok := hashBlahmap[globalBlahBlk][collision]
 		if !ok {
-			ll = make(map[blah.Locations]blah.BlockStatus)
+			ll = make(map[Locations]BlockStatus)
 			hashBlahmap[globalBlahBlk][collision] = ll
 		}
 
@@ -180,7 +227,7 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		}
 
 		// Save the new or updated
-		gopfile.Save(path+blahfFileNameStr, hashBlahmap)
+		gopfile.Save(blahfFileNameStr, hashBlahmap)
 		fmt.Println("")
 		fmt.Println("Save hashBlahmap = ", hashBlahmap)
 
@@ -227,6 +274,9 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		//and also delete from map
 
 		// lock sync.unlock
+		//fmt.Println("block = ", lo, " block = ", sfile[lo:hi]) //debug
+		fmt.Printf("\nBlock# = %d, Block: %x \n\n",
+			lo, sfile[lo:hi])
 
 		// Break loop when last valid block is process
 		//if cap(sfile[lo:hi]) == dirnfiles.BLOCKSIZE {
@@ -238,11 +288,10 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		// Move one byte at a time across the slice
 		lo++
 		hi++
-
 	}
 
-	hashBlahmap := make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
-	gopfile.Load(path+blahfFileNameStr1, &hashBlahmap)
+	hashBlahmap := make(map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus)
+	gopfile.Load(blahfFileNameStr1, &hashBlahmap)
 	fmt.Println("")
 	fmt.Println("hashBlahmap = ", hashBlahmap)
 
@@ -273,17 +322,12 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 
 		fmt.Printf("blockCheckSum : %d\n\n\n", blockStatus.BlockCheckSum)
 	*/
-	/*
-		for _, value := range test[globalBlahBlk][collision][location] {
 
-										}
+	fmt.Println("files size", len(sfile))
+	fmt.Printf("\nname = %s, Key: %d = %s with %d bytes. CRC \n\n",
+		files.Name, files.Key, files.Path, files.Fsize)
 
-		fmt.Println("files size", len(sfile))
-		fmt.Printf("\nname = %s, Key: %d = %s with %d bytes. CRC \n\n",
-			files.Name, files.Key, files.Path, files.Fsize)
-
-		fmt.Printf("\n Files date %x\n\n",
-			sfile)
-	*/
+	fmt.Printf("\n Files date %x\n\n",
+		sfile)
 
 }

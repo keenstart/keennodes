@@ -17,7 +17,7 @@ const (
 	SIZEOF_INT64 = 8
 ) // bytes
 
-func Convert32(covert []byte) [16]int32 {
+func ConverttoInt32(covert []byte) [16]int32 {
 
 	//fmt.Printf("\nConvert32: bytes covert %d count %d\n", covert, len(covert))
 
@@ -31,7 +31,7 @@ func Convert32(covert []byte) [16]int32 {
 	return data
 }
 
-func Convert64(covert []byte) [8]int64 {
+func ConverttoInt64(covert []byte) [8]int64 {
 
 	//fmt.Printf("\nConvert32: bytes covert %d count %d\n", covert, len(covert))
 

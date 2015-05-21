@@ -1,9 +1,5 @@
 package blah
 
-import (
-	"github.com/keenstart/keennodes/gopfile"
-)
-
 //sha512 - this is the 1024bytes{}
 //unit collison/unit location
 
@@ -38,8 +34,8 @@ GlobalBlahBlocks
 */
 
 type GlobalBlahBlock struct {
-	BlockHashSha512 [8]int64 //[]byte
-	BlockFNV64      uint64
+	//BlockHashSha512 [8]int64 //[]byte
+	BlockFNV64 uint64
 }
 
 type Collisions uint64
@@ -50,59 +46,8 @@ type BlockStatus struct {
 	Startposition uint16
 }
 
-type HashBlahmap map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus
-
-func NewHashBlahmap() *HashBlahmap {
-	var hashBlahmap HashBlahmap
-	hashBlahmap = make(map[GlobalBlahBlock]map[Collisions]map[Locations]BlockStatus)
-
-	return &hashBlahmap
-
-}
-
-func (h HashBlahmap) PutHashBlahmap(globalBlahBlk GlobalBlahBlock, collision Collisions,
-	location Locations, blockStatus BlockStatus) { //blkHashSha512 [64]uint8, blkFNV64 uint64,
-
-	h[globalBlahBlk][collision][location] = blockStatus
-
-}
-
-// One unique Block can be assocaite with one file. It does not serve any redundant purpose
-// to use the same file for the unique block more than once. However for redundancy
-// protection the unique block can  be represented by a another location incase a location
-// get lose or corrupted
-func (h HashBlahmap) GetLocationBlkStatus(globalBlahBlk GlobalBlahBlock, collision Collisions,
-	location Locations) BlockStatus {
-
-	return h[globalBlahBlk][collision][location]
-
-}
-
-func (h *HashBlahmap) GetFiles(filepath string) error {
-	err := gopfile.Load(filepath, h)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-
-}
-
-func (h *HashBlahmap) SetFiles(filepath string) error {
-	err := gopfile.Save(filepath, h)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-
-}
-
-func NewGlobalBlahBlock(blkHashSha512 [8]int64, blkFNV64 uint64) GlobalBlahBlock {
-
-	return GlobalBlahBlock{BlockHashSha512: blkHashSha512, BlockFNV64: blkFNV64}
+func NewGlobalBlahBlock(blkFNV64 uint64) GlobalBlahBlock {
+	return GlobalBlahBlock{BlockFNV64: blkFNV64}
 
 }
 
