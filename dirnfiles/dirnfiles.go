@@ -18,6 +18,7 @@ const (
 	BLOCKSIZE = 1024
 )
 
+// Hold the properties of the blahs
 type Dirinfo struct {
 	Key          int
 	Path         string
@@ -33,6 +34,8 @@ type Dirinfo struct {
 
 }
 
+// To keep a list of Blah (files that contain byte block to make other files)
+// files location(address)
 type Dirs struct {
 	Files map[int]*Dirinfo
 }
@@ -57,6 +60,7 @@ func NewDirinfo(key int, path string, fsize int64, name string, modtime string, 
 
 }
 
+// Search system for qualified files to uses as blah files
 func (d *Dirs) GetDirsfile() error {
 
 	var key int
@@ -93,6 +97,7 @@ func (d *Dirs) GetDirsfile() error {
 
 }
 
+// Display the blahs files and there properties
 func (d *Dirs) DisplayPath() {
 	fmt.Println("Display")
 	for _, value := range d.Files {
@@ -103,6 +108,7 @@ func (d *Dirs) DisplayPath() {
 
 }
 
+//Load  Blah files
 func (d *Dirs) GetFiles() error {
 	err := gopfile.Load(BLOBFILE, d)
 
@@ -114,6 +120,7 @@ func (d *Dirs) GetFiles() error {
 
 }
 
+// Save blah files
 func (d *Dirs) SetFiles() error {
 	err := gopfile.Save(BLOBFILE, d)
 

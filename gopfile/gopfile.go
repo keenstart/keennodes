@@ -10,6 +10,7 @@ import (
 	"bytes"
 )
 
+//Utilities to load data structure to files
 func Load(filepath string, i interface{}) error {
 	n, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -28,6 +29,7 @@ func Load(filepath string, i interface{}) error {
 	return nil
 }
 
+//Utilities to save data structure to files
 func Save(filepath string, i interface{}) error {
 	m := new(bytes.Buffer)
 	enc := gob.NewEncoder(m)
