@@ -3,7 +3,9 @@ package processfiles
 import (
 	_ "bytes"
 	_ "container/list"
+	"encoding/hex"
 	"fmt"
+	"os"
 	"sync"
 	_ "time"
 
@@ -11,7 +13,7 @@ import (
 	"github.com/keenstart/keennodes/khash"
 
 	"github.com/keenstart/keennodes/blah"
-	_ "github.com/keenstart/keennodes/gopfile"
+	"github.com/keenstart/keennodes/gopfile"
 )
 
 // Create a struct to store load blah( are hash name files)
@@ -28,7 +30,7 @@ type ProcesService struct {
 	dspro *dirnfiles.Dirs
 	//hBlahmap *blah.HashBlahmap
 
-	HashBlahmap map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus
+	//HashBlahmap map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus
 
 	sync.WaitGroup
 	//sync.Mutex
@@ -40,8 +42,8 @@ type ProcesService struct {
 func NewProSerives() (*ProcesService, error) {
 
 	p := &ProcesService{
-		dspro:       dirnfiles.NewDirs(),
-		HashBlahmap: make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus),
+		dspro: dirnfiles.NewDirs(),
+		//HashBlahmap: make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus),
 		//hBlahmap: blah.NewHashBlahmap(),
 	}
 
@@ -110,17 +112,34 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 	// File location represented by it's key to save on space.
 	// To avoid repeating its location int the blah which
 	// takes up more space than the key
-	location = blah.Locations(files.Key)
-	test := make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
+	location = 1 //blah.Locations(files.Key)
 
+	path := "./blahs/"
 	//loop BLOCKSIZE bytes at a time moving by 1 byte at a time
 	for {
-
+		hashBlahmap := make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
 		//fmt.Printf("blocks #%d , hi = %d,value = %x,len1024 = %d  cap = %d,file sizes = %d\n",
 		//	lo, hi, sfile[lo:hi], len(sfile[lo:hi]), cap(sfile[lo:hi]), files.Fsize) //debug purposes
-		fmt.Println("Start Map")
-		blkHashSha512 = khash.Convert64(khash.Sha512fn(sfile[lo:hi])) //	- get BlockHashSha512
-		fmt.Printf("blkHashSha512 : %d\n", blkHashSha512)             //debug
+
+		blahhashbyte := khash.Sha512fn(sfile[lo:hi])
+
+		blahfFileNameStr := hex.EncodeToString(blahhashbyte)
+
+		fmt.Println(blahfFileNameStr) //debug
+		fmt.Println("Start Map")      //debug
+
+		f, err := os.Open(path + blahfFileNameStr)
+
+		//If file exist load it
+		if !os.IsNotExist(err) {
+			fmt.Println("Load file = ", path+blahfFileNameStr) //debug
+			gopfile.Load(path+blahfFileNameStr, &hashBlahmap)
+
+		}
+		f.Close()
+
+		blkHashSha512 = khash.Convert64(blahhashbyte)     //	- get BlockHashSha512
+		fmt.Printf("blkHashSha512 : %d\n", blkHashSha512) //debug
 
 		blkFNV64 = khash.HashFNV64(sfile[lo:hi]) //	- get BlockFNV64
 		fmt.Printf("blkFNV64 : %d\n", blkFNV64)  //debug
@@ -133,14 +152,12 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		fmt.Printf("startposition : %d\n", startposition) //debug
 
 		blockCheckSum = khash.Hashcrc32(sfile[lo:hi])
-		fmt.Printf("blockCheckSum : %d\n\n\n", blockCheckSum) //debug
+		fmt.Printf("blockCheckSum : %d\n\n", blockCheckSum) //debug
 
 		blockStatus = blah.NewBlockStatus(blockCheckSum, startposition)
 		globalBlahBlk = blah.NewGlobalBlahBlock(blkHashSha512, blkFNV64)
 
-		//test[globalBlahBlk][collision][location] = blockStatus
-
-		_, ok := test[globalBlahBlk][collision][location]
+		_, ok := hashBlahmap[globalBlahBlk][collision][location]
 		if !ok {
 			ll := make(map[blah.Locations]blah.BlockStatus)
 			ll[location] = blockStatus
@@ -148,20 +165,31 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 			cc := make(map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
 			cc[collision] = ll
 
-			test[globalBlahBlk] = cc
+			hashBlahmap[globalBlahBlk] = cc
+
+			// Save the new or updated blah
+			fmt.Println("save file = ", path+blahfFileNameStr) //debug
+			gopfile.Save(path+blahfFileNameStr, hashBlahmap)
+
+		} else {
+			blockStatus = hashBlahmap[globalBlahBlk][collision][location]
+
+			fmt.Printf("startposition : %d\n", blockStatus.Startposition) //debug
+
+			fmt.Printf("blockCheckSum : %d\n\n\n", blockStatus.BlockCheckSum)
 
 		}
 
 		/*
-			//tt[globalBlahBlk]= collision
-			tt, ok = tt[globalBlahBlk][collision]
+			for _,g := hashBlahmap{
 
-			if !ok {
-				ll := make(map[blah.Locations]blah.BlockStatus)
-				tt[globalBlahBlk][collision][location] = ll
+				for _,c := g{
+					for _,l := c{
+				}
+
+
 			}
-			//tt[globalBlahBlk][collision] = location
-			tt[globalBlahBlk][collision][location] = blockStatus
+
 		*/
 		//if !ok {
 
@@ -219,31 +247,34 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		hi++
 
 	}
-	collision = 0
-	location = 0
-	//var b [8]int64
-	fmt.Println("Get Map")
-	blkHashSha512 = [...]int64{8542560806652977256, 3602876116890795078, 2414306596406457046, -4245526746901624870, -7073043113630984961, 2933880197123614138, 7460501996556034562, 253097422264543894}
+	/*
+		collision = 0
+		location = 0
+		//var b [8]int64
+		fmt.Println("Get Map")
+		blkHashSha512 = [...]int64{8542560806652977256, 3602876116890795078, 2414306596406457046, -4245526746901624870, -7073043113630984961, 2933880197123614138, 7460501996556034562, 253097422264543894}
 
-	blkFNV64 = 12359158838599038801 //	- get BlockFNV64 2748473583
+		blkFNV64 = 12359158838599038801 //	- get BlockFNV64 2748473583
 
-	globalBlahBlk = blah.NewGlobalBlahBlock(blkHashSha512, blkFNV64)
+		globalBlahBlk = blah.NewGlobalBlahBlock(blkHashSha512, blkFNV64)
 
-	blockStatus = test[globalBlahBlk][collision][location]
+		blockStatus = hashBlahmap[globalBlahBlk][collision][location]
 
-	fmt.Printf("startposition : %d\n", blockStatus.Startposition) //debug
+		fmt.Printf("startposition : %d\n", blockStatus.Startposition) //debug
 
-	fmt.Printf("blockCheckSum : %d\n\n\n", blockStatus.BlockCheckSum)
+		fmt.Printf("blockCheckSum : %d\n\n\n", blockStatus.BlockCheckSum)
+	*/
+	/*
+		for _, value := range test[globalBlahBlk][collision][location] {
 
-	/*for _, value := range test[globalBlahBlk][collision][location] {
+										}
 
-									}
+		fmt.Println("files size", len(sfile))
+		fmt.Printf("\nname = %s, Key: %d = %s with %d bytes. CRC \n\n",
+			files.Name, files.Key, files.Path, files.Fsize)
 
-	fmt.Println("files size", len(sfile))
-	fmt.Printf("\nname = %s, Key: %d = %s with %d bytes. CRC \n\n",
-		files.Name, files.Key, files.Path, files.Fsize)
-
-	fmt.Printf("\n Files date %x\n\n",
-		sfile)*/
+		fmt.Printf("\n Files date %x\n\n",
+			sfile)
+	*/
 
 }
