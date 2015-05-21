@@ -112,8 +112,8 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 	// File location represented by it's key to save on space.
 	// To avoid repeating its location int the blah which
 	// takes up more space than the key
-	location = 2 //blah.Locations(files.Key)
-	collision = 1
+	location = 4 //blah.Locations(files.Key)
+	collision = 2
 	// test
 	blahfFileNameStr1 := ""
 
@@ -122,16 +122,6 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 	for {
 
 		hashBlahmap := make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
-		//cc := make(map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
-		//ll := make(map[blah.Locations]blah.BlockStatus)
-		//cc[blah.Collisions] = ll
-		//ll[location] = blockStatus
-
-		//[blah.Collisions] = ll
-		//hashBlahmap[blah.GlobalBlahBlock] = cc
-
-		//fmt.Printf("blocks #%d , hi = %d,value = %x,len1024 = %d  cap = %d,file sizes = %d\n",
-		//	lo, hi, sfile[lo:hi], len(sfile[lo:hi]), cap(sfile[lo:hi]), files.Fsize) //debug purposes
 
 		blahhashbyte := khash.Sha512fn(sfile[lo:hi])
 
@@ -171,46 +161,28 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		blockStatus = blah.NewBlockStatus(blockCheckSum, startposition)
 		globalBlahBlk = blah.NewGlobalBlahBlock(blkHashSha512, blkFNV64)
 
-		_, ok := hashBlahmap[globalBlahBlk][collision][location]
+		//_, ok := hashBlahmap[globalBlahBlk][collision][location]
+		cc, ok := hashBlahmap[globalBlahBlk]
 		if !ok {
-
-			_, ok := hashBlahmap[globalBlahBlk][collision]
-			if !ok {
-				fmt.Println("not found collision") //debug
-				/*
-					ll := make(map[blah.Locations]blah.BlockStatus)
-					ll[location] = blockStatus
-
-					cc := make(map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
-					cc[collision] = ll
-
-					hashBlahmap[globalBlahBlk] = cc
-				*/
-
-			} else {
-				fmt.Println("not  collision") //debug
-				/*
-					ll := make(map[blah.Locations]blah.BlockStatus)
-					ll[location] = blockStatus
-
-					hashBlahmap[globalBlahBlk][collision] = ll
-				*/
-			}
-
-			hashBlahmap[globalBlahBlk][collision][location] = blockStatus
-			// Save the new or updated blah
-			fmt.Println("save file = ", path+blahfFileNameStr) //debug
-			gopfile.Save(path+blahfFileNameStr, hashBlahmap)
-			fmt.Println("Save hashBlahmap = ", hashBlahmap)
-
-		} else {
-			blockStatus = hashBlahmap[globalBlahBlk][collision][location]
-
-			fmt.Printf("startposition : %d\n", blockStatus.Startposition) //debug
-
-			fmt.Printf("blockCheckSum : %d\n\n\n", blockStatus.BlockCheckSum)
-
+			cc = make(map[blah.Collisions]map[blah.Locations]blah.BlockStatus)
+			hashBlahmap[globalBlahBlk] = cc
 		}
+
+		ll, ok := hashBlahmap[globalBlahBlk][collision]
+		if !ok {
+			ll = make(map[blah.Locations]blah.BlockStatus)
+			hashBlahmap[globalBlahBlk][collision] = ll
+		}
+
+		_, ok = hashBlahmap[globalBlahBlk][collision][location]
+		if !ok {
+			hashBlahmap[globalBlahBlk][collision][location] = blockStatus
+		}
+
+		// Save the new or updated
+		gopfile.Save(path+blahfFileNameStr, hashBlahmap)
+		fmt.Println("")
+		fmt.Println("Save hashBlahmap = ", hashBlahmap)
 
 		//if !ok {
 
