@@ -47,6 +47,12 @@ GlobalBlahBlocks
 					- StartPosition
 
 */
+/*
+type BlahBlockChan struct {
+	blkHSha512 [8]int64 
+	blockChan chan int
+	remove bool
+}*/
 
 type GlobalBlahBlock struct {
 	//BlockHashSha512 [8]int64 //[]byte
@@ -81,8 +87,11 @@ type ProcesService struct {
 
 	// 'blahtracker' is to allow other goroutine the ability to continue to work. only blocking
 	// if another goroutine is using the same blah file that it needs.
-//w blahtracker map[[8]int64]bool
+	//w blahtracker map[[8]int64]bool
 	blahtracker map[[8]int64]chan int//w
+	
+	//w blahtracker map[[8]int64]BlahBlockChan
+	
 	sync.Mutex
 
 	sync.WaitGroup
@@ -97,6 +106,10 @@ func NewProSerives() (*ProcesService, error) {
 		dspro:       dirnfiles.NewDirs(),
 		blahtracker: make(map[[8]int64]chan),//
 		//w blahtracker: make(map[[8]int64]bool),
+		
+		//w blahtracker: make(map[[8]int64]BlahBlockChan),//
+		
+		
 		//HashBlahmap: make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus),
 		//hBlahmap: blah.NewHashBlahmap(),
 	}
@@ -116,10 +129,14 @@ func NewProSerives() (*ProcesService, error) {
 
 func (p *ProcesService) ProFileSerives() {
 	// MAXPROCCESSESTo limit the amount of goroutine
-	maxprocessch := make(chan int, 1) // MAXPROCCESSESTo limit the amount of goroutine
+	maxprocessch  := make(chan int, 1) // MAXPROCCESSESTo limit the amount of goroutine
+	//w done  := make(chan int) // MAXPROCCESSESTo limit the amount of goroutine
 
 	wg := p.WaitGroup //debug purposes
-
+	
+	//clean up blahtracker
+ 	//w go cleanupblahtracker(p) 
+ 	
 	for _, files := range p.dspro.Files {
 		wg.Add(1) //debug purposes
 
@@ -134,6 +151,7 @@ func (p *ProcesService) ProFileSerives() {
 		}(files)
 		break //debug purposes
 	}
+	//w done <- 1 //stop utility services
 	wg.Wait() //debug purposes
 }
 
@@ -359,3 +377,19 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		sfile)
 
 }
+
+
+/*func  cleanupblahtracker(p *ProcesService,done chan int)  {
+	for {
+		select {
+			case <-done
+			default:
+				for blt := range p.blahtracker{
+					if blt.remove{
+						delete(p.blahtracker, blt.blkHSha512)
+					}
+				}
+		}
+	}
+}*/
+
