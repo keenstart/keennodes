@@ -78,9 +78,14 @@ const (
 
 type ProcesService struct {
 	dspro *dirnfiles.Dirs
+
+	// 'blahtracker' is to allow other goroutine the ability to continue to work. only blocking
+	// if another goroutine is using the same blah file that it needs.
+	blahtracker map[[8]int64]bool
+	sync.Mutex
+
 	sync.WaitGroup
 
-	sync.Mutex
 	//BlahMemoryList *list.List; //Type to add is (GlobalBlahBlock )
 
 }
@@ -88,7 +93,8 @@ type ProcesService struct {
 func NewProSerives() (*ProcesService, error) {
 
 	p := &ProcesService{
-		dspro: dirnfiles.NewDirs(),
+		dspro:       dirnfiles.NewDirs(),
+		blahtracker: make(map[[8]int64]bool),
 		//HashBlahmap: make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus),
 		//hBlahmap: blah.NewHashBlahmap(),
 	}
@@ -161,7 +167,7 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 	// takes up more space than the key
 	location = Locations(files.Key)
 	collision = 1
-	// test
+
 	blahfFileNameStr1 := "" //debug
 
 	//loop BLOCKSIZE bytes at a time moving by 1 byte at a time
@@ -177,16 +183,27 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		fmt.Println(blahfFileNameStr)        //debug
 		fmt.Println("Start Map")             //debug
 
+		// Check if files exist
 		f, err := os.Open(blahfFileNameStr)
+		f.Close()
+
+		// This while loop will keep looping if a another goroutine is as load the
+		// same blah file content. When the goroutine finish with the content it will
+		// remove it from the 'blahtracker' map and the loop will exit
+		for _, ok := p.blahtracker[khash.ConverttoInt64(blahhashbyte)]; ok; {
+		}
 
 		//If file exist load it
 		if !os.IsNotExist(err) {
+
+			// Add the blah to the 'blahtracker' to start working withe the content of the blah
+			p.blahtracker[khash.ConverttoInt64(blahhashbyte)] = true
+			p.Mutex.Lock()
 			fmt.Println("Load file = ", blahfFileNameStr) //debug
 			gopfile.Load(blahfFileNameStr, &hashBlahmap)
-			fmt.Println("Load hashBlahmap = ", hashBlahmap)
-
+			fmt.Println("Load hashBlahmap = ", hashBlahmap) //debug
+			p.Mutex.Unlock()
 		}
-		f.Close()
 
 		fmt.Printf("Filenames : %x\n", blahhashbyte) //debug
 		//blkHashSha512 = khash.ConverttoInt64(blahhashbyte) //	- get BlockHashSha512
@@ -275,8 +292,12 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 
 		// lock sync.unlock
 		//fmt.Println("block = ", lo, " block = ", sfile[lo:hi]) //debug
+
+		// Remove from 'blahtracker'  allow another goroutine that need that blah go ahead
+		delete(p.blahtracker, khash.ConverttoInt64(blahhashbyte))
+
 		fmt.Printf("\nBlock# = %d, Block: %x \n\n",
-			lo, sfile[lo:hi])
+			lo, sfile[lo:hi]) //Debug
 
 		// Break loop when last valid block is process
 		//if cap(sfile[lo:hi]) == dirnfiles.BLOCKSIZE {
