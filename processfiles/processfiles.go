@@ -81,7 +81,8 @@ type ProcesService struct {
 
 	// 'blahtracker' is to allow other goroutine the ability to continue to work. only blocking
 	// if another goroutine is using the same blah file that it needs.
-	blahtracker map[[8]int64]bool
+//w blahtracker map[[8]int64]bool
+	blahtracker map[[8]int64]chan int//w
 	sync.Mutex
 
 	sync.WaitGroup
@@ -94,7 +95,8 @@ func NewProSerives() (*ProcesService, error) {
 
 	p := &ProcesService{
 		dspro:       dirnfiles.NewDirs(),
-		blahtracker: make(map[[8]int64]bool),
+		blahtracker: make(map[[8]int64]chan),//
+		//w blahtracker: make(map[[8]int64]bool),
 		//HashBlahmap: make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus),
 		//hBlahmap: blah.NewHashBlahmap(),
 	}
@@ -190,19 +192,23 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		// This while loop will keep looping if a another goroutine is as load the
 		// same blah file content. When the goroutine finish with the content it will
 		// remove it from the 'blahtracker' map and the loop will exit
-		for _, ok := p.blahtracker[khash.ConverttoInt64(blahhashbyte)]; ok; {
+		//w for _, ok := p.blahtracker[khash.ConverttoInt64(blahhashbyte)]; ok; {
+		//w }
+		if _,ok:= p.blahtracker[khash.ConverttoInt64(blahhashbyte)];!ok;{ // w
+			p.blahtracker[khash.ConverttoInt64(blahhashbyte)] = make(chan int) //w
 		}
-
+		p.blahtracker[khash.ConverttoInt64(blahhashbyte)] <- 1 //w
+		
 		//If file exist load it
 		if !os.IsNotExist(err) {
 
 			// Add the blah to the 'blahtracker' to start working withe the content of the blah
-			p.blahtracker[khash.ConverttoInt64(blahhashbyte)] = true
-			p.Mutex.Lock()
+			//w p.blahtracker[khash.ConverttoInt64(blahhashbyte)] = true
+			//w p.Mutex.Lock()
 			fmt.Println("Load file = ", blahfFileNameStr) //debug
 			gopfile.Load(blahfFileNameStr, &hashBlahmap)
 			fmt.Println("Load hashBlahmap = ", hashBlahmap) //debug
-			p.Mutex.Unlock()
+			//w p.Mutex.Unlock()
 		}
 
 		fmt.Printf("Filenames : %x\n", blahhashbyte) //debug
@@ -294,6 +300,7 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		//fmt.Println("block = ", lo, " block = ", sfile[lo:hi]) //debug
 
 		// Remove from 'blahtracker'  allow another goroutine that need that blah go ahead
+		<-p.blahtracker[khash.ConverttoInt64(blahhashbyte)] //w
 		delete(p.blahtracker, khash.ConverttoInt64(blahhashbyte))
 
 		fmt.Printf("\nBlock# = %d, Block: %x \n\n",
