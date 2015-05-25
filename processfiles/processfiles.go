@@ -49,7 +49,7 @@ GlobalBlahBlocks
 */
 /*
 type BlahBlockChan struct {
-	blkHSha512 [8]int64 
+	blkHSha512 [8]int64
 	blockChan chan int
 	remove bool
 }*/
@@ -80,6 +80,7 @@ const (
 	//PROCESSROOT   = "/Users/garethharris/"
 	MAXPROCCESSES = 170 // To limit the amount of goroutine
 	BLAHPATH      = "./blahs/"
+	MAXLOCATION   = 12
 )
 
 type ProcesService struct {
@@ -87,11 +88,11 @@ type ProcesService struct {
 
 	// 'blahtracker' is to allow other goroutine the ability to continue to work. only blocking
 	// if another goroutine is using the same blah file that it needs.
-	//w blahtracker map[[8]int64]bool
-	blahtracker map[[8]int64]chan int//w
-	
+	blahtracker map[[8]int64]bool
+	//blahtracker map[[8]int64]chan int //w
+
 	//w blahtracker map[[8]int64]BlahBlockChan
-	
+
 	sync.Mutex
 
 	sync.WaitGroup
@@ -103,13 +104,12 @@ type ProcesService struct {
 func NewProSerives() (*ProcesService, error) {
 
 	p := &ProcesService{
-		dspro:       dirnfiles.NewDirs(),
-		blahtracker: make(map[[8]int64]chan),//
-		//w blahtracker: make(map[[8]int64]bool),
-		
+		dspro: dirnfiles.NewDirs(),
+		//w blahtracker: make(map[[8]int64]chan int), //
+		blahtracker: make(map[[8]int64]bool),
+
 		//w blahtracker: make(map[[8]int64]BlahBlockChan),//
-		
-		
+
 		//HashBlahmap: make(map[blah.GlobalBlahBlock]map[blah.Collisions]map[blah.Locations]blah.BlockStatus),
 		//hBlahmap: blah.NewHashBlahmap(),
 	}
@@ -129,14 +129,14 @@ func NewProSerives() (*ProcesService, error) {
 
 func (p *ProcesService) ProFileSerives() {
 	// MAXPROCCESSESTo limit the amount of goroutine
-	maxprocessch  := make(chan int, 1) // MAXPROCCESSESTo limit the amount of goroutine
+	maxprocessch := make(chan int, 1) // MAXPROCCESSESTo limit the amount of goroutine
 	//w done  := make(chan int) // MAXPROCCESSESTo limit the amount of goroutine
 
 	wg := p.WaitGroup //debug purposes
-	
+
 	//clean up blahtracker
- 	//w go cleanupblahtracker(p) 
- 	
+	//w go cleanupblahtracker(p)
+
 	for _, files := range p.dspro.Files {
 		wg.Add(1) //debug purposes
 
@@ -207,26 +207,38 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		f, err := os.Open(blahfFileNameStr)
 		f.Close()
 
-		// This while loop will keep looping if a another goroutine is as load the
+		// This while loop will keep looping if a another goroutine as  the
 		// same blah file content. When the goroutine finish with the content it will
 		// remove it from the 'blahtracker' map and the loop will exit
-		//w for _, ok := p.blahtracker[khash.ConverttoInt64(blahhashbyte)]; ok; {
-		//w }
-		if _,ok:= p.blahtracker[khash.ConverttoInt64(blahhashbyte)];!ok;{ // w
-			p.blahtracker[khash.ConverttoInt64(blahhashbyte)] = make(chan int) //w
+
+		for {
+			p.Mutex.Lock()
+			if _, ok := p.blahtracker[khash.ConverttoInt64(blahhashbyte)]; !ok {
+				p.blahtracker[khash.ConverttoInt64(blahhashbyte)] = true
+				fmt.Println("BREAKING:  ", blahhashbyte) //debug
+				p.Mutex.Unlock()
+				break
+			}
+			p.Mutex.Unlock()
+			fmt.Println("WAITING:  ", blahhashbyte) //debug
 		}
-		p.blahtracker[khash.ConverttoInt64(blahhashbyte)] <- 1 //w
-		
+		/*
+			if _, ok := p.blahtracker[khash.ConverttoInt64(blahhashbyte)]; !ok { // w
+			p.blahtracker[khash.ConverttoInt64(blahhashbyte)] = make(chan int) //w
+			}
+			p.blahtracker[khash.ConverttoInt64(blahhashbyte)] <- 1 //w
+		*/
+
 		//If file exist load it
 		if !os.IsNotExist(err) {
 
 			// Add the blah to the 'blahtracker' to start working withe the content of the blah
 			//w p.blahtracker[khash.ConverttoInt64(blahhashbyte)] = true
-			//w p.Mutex.Lock()
+			//p.Mutex.Lock()
 			fmt.Println("Load file = ", blahfFileNameStr) //debug
 			gopfile.Load(blahfFileNameStr, &hashBlahmap)
 			fmt.Println("Load hashBlahmap = ", hashBlahmap) //debug
-			//w p.Mutex.Unlock()
+			//p.Mutex.Unlock()
 		}
 
 		fmt.Printf("Filenames : %x\n", blahhashbyte) //debug
@@ -264,7 +276,16 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 
 		_, ok = hashBlahmap[globalBlahBlk][collision][location]
 		if !ok {
-			hashBlahmap[globalBlahBlk][collision][location] = blockStatus
+			// Limit the number of location with the same copy of Blah
+			// It is necessary to have more than one location in case one is loss
+			if len(hashBlahmap[globalBlahBlk][collision]) < MAXLOCATION {
+
+				// TODO check for collision and incement collision count
+				// numbercollision := len(hashBlahmap[globalBlahBlk])
+				// use a utility function and return true if there is a collison
+
+				hashBlahmap[globalBlahBlk][collision][location] = blockStatus
+			}
 		}
 
 		// Save the new or updated
@@ -318,8 +339,12 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		//fmt.Println("block = ", lo, " block = ", sfile[lo:hi]) //debug
 
 		// Remove from 'blahtracker'  allow another goroutine that need that blah go ahead
-		<-p.blahtracker[khash.ConverttoInt64(blahhashbyte)] //w
+
+		//<-p.blahtracker[khash.ConverttoInt64(blahhashbyte)] //w
+		fmt.Println("DELETING:  ", blahhashbyte)
+		p.Mutex.Lock()
 		delete(p.blahtracker, khash.ConverttoInt64(blahhashbyte))
+		p.Mutex.Unlock()
 
 		fmt.Printf("\nBlock# = %d, Block: %x \n\n",
 			lo, sfile[lo:hi]) //Debug
@@ -378,7 +403,6 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 
 }
 
-
 /*func  cleanupblahtracker(p *ProcesService,done chan int)  {
 	for {
 		select {
@@ -392,4 +416,3 @@ func process(files *dirnfiles.Dirinfo, p *ProcesService /*, lock *sync.mutex*/) 
 		}
 	}
 }*/
-
