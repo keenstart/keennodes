@@ -3,7 +3,7 @@ package gopfile
 import (
 	_ "bufio"
 	"encoding/gob"
-	_ "fmt"
+
 	"io/ioutil"
 	"log"
 
