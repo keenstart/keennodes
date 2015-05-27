@@ -1,7 +1,6 @@
 package gopfile
 
 import (
-	_ "bufio"
 	"encoding/gob"
 
 	"io/ioutil"
