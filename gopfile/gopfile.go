@@ -9,7 +9,7 @@ import (
 	"bytes"
 )
 
-//Utilities to load data structure to files
+//Utilities to load data structure to files test
 func Load(filepath string, i interface{}) error {
 	n, err := ioutil.ReadFile(filepath)
 	if err != nil {
