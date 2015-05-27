@@ -1,8 +1,6 @@
 package processfiles
 
 import (
-	_ "bytes"
-	_ "container/list"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -10,10 +8,8 @@ import (
 	_ "time"
 
 	"github.com/keenstart/keennodes/dirnfiles"
-	"github.com/keenstart/keennodes/khash"
-
-	_ "github.com/keenstart/keennodes/blah"
 	"github.com/keenstart/keennodes/gopfile"
+	"github.com/keenstart/keennodes/khash"
 )
 
 /*

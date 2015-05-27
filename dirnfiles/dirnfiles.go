@@ -64,13 +64,8 @@ func (d *Dirs) GetDirsfile() error {
 
 			if strings.Contains(PROCESSEXT, filepath.Ext(path)) == true &&
 				len(filepath.Ext(path)) > 1 {
-
-				fmt.Println("EXT = ", filepath.Ext(path)) //Debug
-				//dd := &Dirinfo{path: path, fsize: f.Size(), name: f.Name(), modtime: f.ModTime().String()}
 				dd := NewDirinfo(key, path, f.Size(), f.Name(), f.ModTime().String(), f.Mode().String())
-
 				d.Files[key] = dd
-
 				key++
 
 				if err != nil {
@@ -85,10 +80,7 @@ func (d *Dirs) GetDirsfile() error {
 		return err
 	}
 
-	fmt.Println("Total files = ", key) //Debug
-
 	return nil
-
 }
 
 // Display the blahs files and there properties
