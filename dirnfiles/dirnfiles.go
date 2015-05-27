@@ -11,11 +11,10 @@ import (
 )
 
 const (
-	PROCESSROOT = "./"                  //"/Users/garethharris/"
-	PROCESSEXT  = ".jpg,.JPG,.PNG,.png" //,.PNG,.png
-
-	BLOBFILE  = "/tmp/blob.bl"
-	BLOCKSIZE = 1024
+	PROCESSROOT = "./"
+	PROCESSEXT  = ".jpg,.JPG,.PNG,.png"
+	BLOBFILE    = "/tmp/blob.bl"
+	BLOCKSIZE   = 1024
 )
 
 // Hold the properties of the blahs
@@ -27,11 +26,6 @@ type Dirinfo struct {
 	Modtime      string //remove
 	Mode         string // remove
 	FileChecksum uint64
-	//active       bool  //add - when ative it
-	// means the process is
-	// done on this file
-	// and it is not corrupted or mssing
-
 }
 
 // To keep a list of Blah (files that contain byte block to make other files)

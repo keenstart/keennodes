@@ -1,15 +1,13 @@
 package gopfile
 
 import (
+	"bytes"
 	"encoding/gob"
-
 	"io/ioutil"
 	"log"
-
-	"bytes"
 )
 
-//Utilities to load data structure to files test
+//Utilities to load data structure to files
 func Load(filepath string, i interface{}) error {
 	n, err := ioutil.ReadFile(filepath)
 	if err != nil {
